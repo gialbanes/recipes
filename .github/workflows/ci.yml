@@ -2,25 +2,21 @@ name: CI/CD Recipes
 
 on: 
     push:
-        branches: [ main ]
+        branches: [ docker ]
     pull_request:
-        branches: [ main ]
+        branches: [ docker ]
 
 jobs:
   ci:
     runs-on: ubuntu-latest
+    container:
+        image: maven:3.9.9-eclipse-temurin-21
     steps:
-      - name: Checkout 
-        uses: actions/checkout@v4
+        - name: Checkout código
+          uses: actions/checkout@v4 
 
-      - name: Configurar Java
-        uses: actions/setup-java@v4
-        with:
-            java-version: "21"
-            distribution: "temurin"
-
-      - name: Instalar dependências e rodar teste
-        run: mvn clean install
+        - name: Executar testes no container
+          run: mvn -B verify 
 
   cd:
     needs: ci
@@ -33,17 +29,9 @@ jobs:
     - name: Checkout 
       uses: actions/checkout@v4
 
-    - name: Configurar Java
-      uses: actions/setup-java@v4
+    - name: Build e Push da imagem para o Docker Hub
+      uses: docker/build-push-action@v5
       with:
-        java-version: "21"
-        distribution: "temurin"
-
-    - name: Gerar JAR
-      run: mvn -B package --file pom.xml -DskipTests
-
-    - name: Upload do JAR
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-jar
-        path: target/*.jar
+        context: .
+        push: true 
+        tags: ${{ secrets.DOCKER_USERNAME}}/api-links-uteis:latest 
