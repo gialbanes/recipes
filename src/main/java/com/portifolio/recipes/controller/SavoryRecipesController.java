@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/savoryrecipes")
 public class SavoryRecipesController {
             private final Map<Integer, Map<String, String>> recipes = new HashMap<>(Map.of(
                 1, Map.of("name", "Strogonoff", "nationality", "Brasileira", "description", "Frango em cubos com molho cremoso de tomate e champignon"),
@@ -21,12 +20,12 @@ public class SavoryRecipesController {
                 3, Map.of("name", "Escondidinho", "nationality", "Brasileira", "description", "Carne seca com purê de mandioca")
             ));
 
-    @GetMapping
+    @GetMapping("/recipes")
     public ResponseEntity<Map<Integer, Map<String, String>>> getAllRecipes(){
         return ResponseEntity.ok(recipes);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/recipe/{id}")
     public ResponseEntity<Map<String, String>> getRecipeById(@PathVariable Integer id){
         Map<String, String> recipe = recipes.get(id);
 
@@ -44,7 +43,7 @@ public class SavoryRecipesController {
         );
     }
 
-    @PostMapping
+    @PostMapping("/newRecipe")
     public ResponseEntity<Map<String, String>> createRecipe(@RequestBody Map<String, String> newRecipe){
         Integer newId = recipes.size() + 1;
         recipes.put(newId, newRecipe);
