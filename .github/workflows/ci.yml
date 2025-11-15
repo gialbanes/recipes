@@ -1,0 +1,49 @@
+name: CI/CD Recipes
+
+on: 
+    push:
+        branches: [ main ]
+    pull_request:
+        branches: [ main ]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v4
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+            java-version: "21"
+            distribution: "temurin"
+
+      - name: Instalar dependências e rodar teste
+        run: mvn clean install
+
+  cd:
+    needs: ci
+
+    if: github.ref == 'refs/heads/main'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout 
+      uses: actions/checkout@v4
+
+    - name: Configurar Java
+      uses: actions/setup-java@v4
+      with:
+        java-version: "21"
+        distribution: "temurin"
+
+    - name: Gerar JAR
+      run: mvn -B package --file pom.xml -DskipTests
+
+    - name: Upload do JAR
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-jar
+        path: target/*.jar
